@@ -398,3 +398,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { passive: true });
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const bgMusic = document.getElementById("bgMusic") || document.getElementById("bgm");
+
+  const triggerAudio = () => {
+    if (bgMusic) {
+      bgMusic.volume = 0.5;
+      bgMusic.play().then(() => {
+        document.removeEventListener("click", triggerAudio);
+        document.removeEventListener("touchstart", triggerAudio);
+      }).catch(err => {
+        console.log("Blocked:", err);
+      });
+    }
+  };
+
+  document.addEventListener("click", triggerAudio);
+  document.addEventListener("touchstart", triggerAudio);
+});
