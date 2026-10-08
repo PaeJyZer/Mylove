@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Happy 1st Month</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
+</head>
+<body>
+
+  <div class="music-player">
+  <audio controls loop>
+    <source src="audio/คู่ชีวิต.mp3" type="audio/mpeg">
+    เบราว์เซอร์ของคุณไม่รองรับการเล่นไฟล์เสียง
+  </audio>
+  </div>
+
+  <!-- พื้นหลัง: แดงไวน์ + ลายจุด + เกรน + หัวใจลอย (หัวใจสร้างด้วย script.js) -->
+  <div class="cyber-bg" id="cyberBg"></div>
+
+  <!-- เวทีขนาดคงที่ 1600x900 ย่อขยายให้พอดีจอ (iPad = คอม) -->
+  <div class="stage" id="stage">
+
+    <!-- หน้าเปิดตรงกลาง -->
+    <div class="main-photo-container" id="mainPhotoBtn">
+      <div class="popup-card-custom">
+        <p class="eyebrow">Anniversary</p>
+        <h2 class="popup-title">Happy 1st Month</h2>
+        <p class="popup-subtitle">สุขสันต์วันครบรอบ 1 เดือนนะค้าบบบ</p>
+
+        <div class="image-wrapper">
+          <img src="img/1000003665.jpg" alt="รูปคู่ของเรา" class="interactive-photo">
+        </div>
+
+        <div class="click-hint">กดเพื่อเปิด &rarr;</div>
+      </div>
+    </div>
+
+    <!-- แกลเลอรี 20 รูป กระจาย -->
+    <div class="scatter-gallery" id="scatterGallery">
+      <div class="scatter-item pic-1"><img src="img/1000003665.jpg" alt="1"></div>
+      <div class="scatter-item pic-2"><img src="img/1000003665.jpg" alt="2"></div>
+      <div class="scatter-item pic-3"><img src="img/1000003665.jpg" alt="3"></div>
+      <div class="scatter-item pic-4"><img src="img/1000003665.jpg" alt="4"></div>
+      <div class="scatter-item pic-5"><img src="img/1000003665.jpg" alt="5"></div>
+      <div class="scatter-item pic-6"><img src="img/1000003665.jpg" alt="6"></div>
+      <div class="scatter-item pic-7"><img src="img/1000003665.jpg" alt="7"></div>
+      <div class="scatter-item pic-8"><img src="img/1000003665.jpg" alt="8"></div>
+      <div class="scatter-item pic-9"><img src="img/1000003665.jpg" alt="9"></div>
+      <div class="scatter-item pic-10"><img src="img/1000003665.jpg" alt="10"></div>
+      <div class="scatter-item pic-11"><img src="img/1000003665.jpg" alt="11"></div>
+      <div class="scatter-item pic-12"><img src="img/1000003665.jpg" alt="12"></div>
+      <div class="scatter-item pic-13"><img src="img/1000003665.jpg" alt="13"></div>
+      <div class="scatter-item pic-14"><img src="img/1000003665.jpg" alt="14"></div>
+      <div class="scatter-item pic-15"><img src="img/1000003665.jpg" alt="15"></div>
+      <div class="scatter-item pic-16"><img src="img/1000003665.jpg" alt="16"></div>
+      <div class="scatter-item pic-17"><img src="img/1000003665.jpg" alt="17"></div>
+      <div class="scatter-item pic-18"><img src="img/1000003665.jpg" alt="18"></div>
+      <div class="scatter-item pic-19"><img src="img/1000003665.jpg" alt="19"></div>
+
+      <!-- รูปที่ 20: รูปหลักใหญ่สุดตรงกลาง -->
+      <div class="scatter-item pic-center">
+        <img src="img/1000003665.jpg" alt="รูปที่ 20 ใหญ่สุดตรงกลาง">
+        <div class="center-tag">Our Best Memory</div>
+      </div>
+
+      <!-- ช่องข้อความ -->
+      <div class="scatter-item caption-cell">
+        <span class="caption-num">01</span>
+        <span class="caption-title">Month</span>
+        <span class="caption-sub">ครบรอบ 1 เดือน</span>
+      </div>
+    </div>
+
+    <!-- ปุ่มจดหมาย (โผล่หลังรูปกระจายครบ) -->
+    <button class="letter-btn" id="letterBtn" type="button">
+      <span class="lb-en">Read my letter</span>
+      <span class="lb-th">จดหมายถึงเธอ</span>
+    </button>
+  </div>
+
+  <!-- ชั้นหัวใจที่พุ่งออกมาตอนแตะ -->
+  <div class="burst-layer" id="burstLayer"></div>
+
+  <!-- เพลงพื้นหลัง (วางไฟล์ music.mp3 ไว้โฟลเดอร์เดียวกัน) -->
+  <audio id="bgm" src="music.mp3" loop preload="auto"></audio>
+  <button class="music-btn" id="musicBtn" type="button" aria-label="เปิด/ปิดเพลง" hidden>&#9834;</button>
+
+  <!-- จดหมาย -->
+  <div class="overlay" id="letterOverlay">
+    <div class="letter-card">
+      <button class="close-btn" type="button" data-close aria-label="ปิด">&times;</button>
+      <p class="eyebrow">A letter for you</p>
+      <h2 class="popup-title">ถึงคนพิเศษของเป๊ะ</h2>
+      <p class="counter-title">เราอยู่ด้วยกันมาแล้ว</p>
+      <div class="day-counter" id="dayCounter"></div>
+      <div class="letter-body"><span id="letterTyped"></span><span id="letterRest"></span></div>
+      <p class="letter-sign" id="letterSign"></p>
+    </div>
+  </div>
+
+  <!-- ดูรูปขนาดใหญ่ -->
+  <div class="overlay" id="lightbox">
+    <button class="close-btn lb-close" type="button" data-close aria-label="ปิด">&times;</button>
+    <button class="lb-nav" id="lbPrev" type="button" aria-label="รูปก่อนหน้า">&lsaquo;</button>
+    <figure class="lb-frame">
+      <img id="lbImg" src="" alt="">
+      <figcaption>
+        <span class="lb-cap" id="lbCap"></span>
+        <span class="lb-count" id="lbCount"></span>
+      </figcaption>
+    </figure>
+    <button class="lb-nav" id="lbNext" type="button" aria-label="รูปถัดไป">&rsaquo;</button>
+  </div>
+
+  <div class="rotate-hint">
+    <p>หมุนหน้าจอเป็นแนวนอน</p>
+    <span>Please rotate your device</span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
