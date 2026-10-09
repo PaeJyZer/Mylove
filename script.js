@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ข้อความจดหมาย ขึ้นบรรทัดใหม่ด้วย \n (เว้นบรรทัด = \n\n)
   const LETTER_TEXT =
-    "ครบ 1 เดือนแล้วนะ\n\n" +
+    "ครบ 1 เดือนแล้วนะ จริงๆก็รู้จักกันมา3ปีกว่าแล้วแหละ555\n\n" +
     "ขอบคุณที่เข้ามานะ มีความสุขมากๆเลยที่ได้อยู่ด้วยกัน\n\n" +
     "ขอบคุณที่ยังรักกันมาโดยตลอดและตลอดไปนะ\n\n" +
     "ต่อจากนี้ไม่ว่าจะอีกกี่เดือน อยากให้ยังเป็นเธออยู่ข้างๆ แบบนี้ตลอดไปนะ";
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "Our Best Memory"
   ];
 
-  const TYPE_SPEED = 55; // ความเร็วพิมพ์จดหมาย (มิลลิวินาที/ตัวอักษร) ยิ่งน้อยยิ่งเร็ว
+  const TYPE_SPEED = 150; // ความเร็วพิมพ์จดหมาย (มิลลิวินาที/ตัวอักษร) ยิ่งน้อยยิ่งเร็ว
 
   // =====================================================
 
@@ -415,4 +415,169 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("click", triggerAudio);
   document.addEventListener("touchstart", triggerAudio);
+
+    // =====================================================
+  //  🌸 ดอกไม้หลังปิดจดหมาย → กดแล้วดอกไม้ใบไม้กระจายเต็มเว็บ
+  // =====================================================
+  (function () {
+    // ✏️ แก้ข้อความซึ้งๆ ตรงนี้ (ขึ้นบรรทัดใหม่ด้วย \n)
+    const FLOWER_MESSAGE =
+      "ขอบคุณที่เป็นเธอ คนที่ทำให้วันธรรมดากลายเป็นวันพิเศษทุกวันเลยนะ\nดอกไม้ดอกนี้ให้เธอคนเดียวนะ";
+    const FLOWER_HINT = "แตะที่ดอกไม้";
+
+    const FLOWER_COUNT = 70; // จำนวนดอกไม้ที่กระจาย
+    const LEAF_COUNT = 50;   // จำนวนใบไม้ที่กระจาย
+
+    const letterEl = document.getElementById("letterOverlay");
+    if (!letterEl) return;
+
+    const r = (a, b) => a + Math.random() * (b - a);
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    const FCOLORS = ["#f6e9e0", "#f9c4cc", "#f08aa0", "#e0405a", "#b32a45"];
+    const FDARK = ["#f08aa0", "#e0405a", "#b32a45", "#f9c4cc"];
+    const LCOLORS = ["#6f9a6a", "#4f7d57", "#8fae7c", "#3f6b4b"];
+
+    function petals(color, n, offset) {
+      let s = "";
+      for (let i = 0; i < n; i++) {
+        s +=
+          '<ellipse cx="50" cy="26" rx="13" ry="23" fill="' + color +
+          '" stroke="rgba(36,9,16,0.18)" stroke-width="1" transform="rotate(' +
+          (offset + (360 / n) * i) + ' 50 50)"/>';
+      }
+      return s;
+    }
+
+    function flowerSVG(color, n, backColor) {
+      let inner = "";
+      if (backColor) inner += petals(backColor, n, 180 / n);
+      inner += petals(color, n, 0);
+      return (
+        '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
+        inner +
+        '<circle cx="50" cy="50" r="11" fill="#f3c969"/>' +
+        '<circle cx="50" cy="50" r="5" fill="#d99a3a"/></svg>'
+      );
+    }
+
+    function leafSVG(color) {
+      return (
+        '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M12 2C5 6 3 14 6 22c8-1 15-7 15-15 0-2-4-4-9-5z" fill="' + color + '"/>' +
+        '<path d="M6 22C9 15 13 10 18 6" stroke="rgba(246,233,224,0.45)" stroke-width="1" fill="none"/></svg>'
+      );
+    }
+
+    // ---------- ดอกไม้ใบไม้กระจายเต็มเว็บ (อยู่ถาวร) ----------
+    let layer = null;
+    function getLayer() {
+      if (!layer) {
+        layer = document.createElement("div");
+        layer.className = "bloom-layer";
+        document.body.appendChild(layer);
+      }
+      return layer;
+    }
+
+    function bloom(cx, cy) {
+      const lay = getLayer();
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+
+      for (let i = 0; i < FLOWER_COUNT + LEAF_COUNT; i++) {
+        const isFlower = i < FLOWER_COUNT;
+        const size = isFlower ? r(24, 64) : r(20, 46);
+        const x = r(0, 100);
+        const y = r(0, 100);
+        const rot = r(-180, 180);
+        const op = r(0.75, 1);
+
+        const el = document.createElement("div");
+        el.className = "bloom-item" + (isFlower ? " is-flower" : "");
+        el.style.left = x + "%";
+        el.style.top = y + "%";
+        el.style.width = size + "px";
+        el.style.height = size + "px";
+        el.style.margin = -size / 2 + "px 0 0 " + -size / 2 + "px";
+        el.style.opacity = op.toFixed(2);
+        el.style.transform = "rotate(" + rot.toFixed(1) + "deg)";
+
+        if (isFlower) {
+          el.innerHTML = flowerSVG(
+            pick(FCOLORS),
+            pick([5, 6, 8]),
+            Math.random() < 0.55 ? pick(FDARK) : null
+          );
+          const svg = el.firstChild;
+          svg.style.animationDuration = r(3.5, 6.5).toFixed(1) + "s";
+          svg.style.animationDelay = "-" + r(0, 4).toFixed(1) + "s";
+        } else {
+          el.innerHTML = leafSVG(pick(LCOLORS));
+        }
+
+        lay.appendChild(el);
+
+        const dx = cx - (W * x) / 100;
+        const dy = cy - (H * y) / 100;
+
+        el.animate(
+          [
+            { transform: "translate(" + dx + "px," + dy + "px) scale(0.1) rotate(0deg)", opacity: 0 },
+            { transform: "translate(" + dx * 0.35 + "px," + dy * 0.35 + "px) scale(1.15) rotate(" + rot * 0.6 + "deg)", opacity: 1, offset: 0.45 },
+            { transform: "translate(0,0) scale(1) rotate(" + rot + "deg)", opacity: op }
+          ],
+          {
+            duration: r(1400, 2400),
+            delay: r(0, 450),
+            easing: "cubic-bezier(0.2, 0.8, 0.25, 1)",
+            fill: "backwards"
+          }
+        );
+      }
+    }
+
+    // ---------- ดอกไม้เด้งขึ้นมาพร้อมข้อความ ----------
+    function showFlower() {
+      const pop = document.createElement("div");
+      pop.className = "flower-pop";
+      pop.innerHTML =
+        '<div class="fp-flower" role="button" aria-label="ดอกไม้">' +
+        flowerSVG("#f9c4cc", 8, "#f08aa0") +
+        '</div><div class="fp-card"><p class="fp-msg"></p><p class="fp-hint"></p></div>';
+      pop.querySelector(".fp-msg").textContent = FLOWER_MESSAGE;
+      pop.querySelector(".fp-hint").textContent = FLOWER_HINT;
+      document.body.appendChild(pop);
+
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => pop.classList.add("show"))
+      );
+
+      const flower = pop.querySelector(".fp-flower");
+      let done = false;
+      flower.addEventListener("click", () => {
+        if (done) return;
+        done = true;
+        const rect = flower.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        pop.classList.add("go");
+        bloom(cx, cy);
+        setTimeout(() => pop.remove(), 900);
+      });
+    }
+
+    // ---------- จับจังหวะตอนปิดจดหมาย (ครั้งแรกครั้งเดียว) ----------
+    let wasOpen = false;
+    let shown = false;
+    new MutationObserver(() => {
+      const open = letterEl.classList.contains("open");
+      if (open) {
+        wasOpen = true;
+      } else if (wasOpen && !shown) {
+        shown = true;
+        setTimeout(showFlower, 650);
+      }
+    }).observe(letterEl, { attributes: true, attributeFilter: ["class"] });
+  })();
 });
