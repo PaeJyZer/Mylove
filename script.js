@@ -28,6 +28,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const TYPE_SPEED = 150; // ความเร็วพิมพ์จดหมาย (มิลลิวินาที/ตัวอักษร) ยิ่งน้อยยิ่งเร็ว
 
+  // วินาทีของเพลงที่อยากให้เริ่มตอนกด (0 = เริ่มต้นเพลง, 45 = เริ่มที่ 0:45)
+  const MUSIC_START = 0;
+  // เฟดเสียงเข้า (มิลลิวินาที) ใส่ 0 ถ้าอยากให้ดังทันที
+  const MUSIC_FADE = 1200;
+
+  // ข้อความซึ้งๆ ในหน้าดอกไม้ (ขึ้นบรรทัดใหม่ด้วย \n)
+  const FLOWER_MESSAGE =
+    "เป๊ะเป็นคนพูดไม่เก่ง แสดงความรักไม่เก่ง แต่เป๊ะตั้งใจทำทุกอย่างเพื่อเธอนะ ใบตุ่น\nดอกไม้ดอกนี้ให้เธอคนเดียวนะ";
+  const FLOWER_HINT = "แตะที่ดอกไม้";
+
   // =====================================================
 
   const stage = document.getElementById("stage");
@@ -37,6 +47,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const bg = document.getElementById("cyberBg");
   const burstLayer = document.getElementById("burstLayer");
   const letterBtn = document.getElementById("letterBtn");
+
+  // เครื่อง CPU 4 แกนหรือน้อยกว่า = ลดจำนวนของที่เคลื่อนไหวอัตโนมัติ
+  const LOW_POWER = (navigator.hardwareConcurrency || 8) <= 4;
+  if (LOW_POWER) document.body.classList.add("low-power");
+
+  const FLOWER_COUNT = LOW_POWER ? 45 : 70; // จำนวนดอกไม้ที่กระจาย
+  const LEAF_COUNT = LOW_POWER ? 32 : 50;   // จำนวนใบไม้ที่กระจาย
 
   // ---------- ย่อ/ขยายเวทีให้พอดีจอ ทำให้ iPad เห็นเหมือนบนคอม ----------
   const STAGE_W = 1600;
@@ -117,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rand = (min, max) => min + Math.random() * (max - min);
 
   // ---------- หัวใจลอยด้านหลัง ----------
-  const HEART_COUNT = 28;
+  const HEART_COUNT = LOW_POWER ? 18 : 28;
 
   for (let i = 0; i < HEART_COUNT; i++) {
     const size = rand(14, 64);
@@ -146,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- หัวใจพุ่งกระจาย ณ ตำแหน่งที่ระบุ ----------
   function burstAt(x, y, count) {
+    if (burstLayer.childElementCount > 90) return; // กันแตะรัวจนหนักเครื่อง
     count = count || 8;
     for (let i = 0; i < count; i++) {
       const el = document.createElement("div");
@@ -219,9 +237,22 @@ document.addEventListener("DOMContentLoaded", () => {
   mainPhotoBtn.addEventListener("click", () => {
     mainPhotoBtn.classList.add("hide-out");
 
-    // เริ่มเพลง (ต้องเริ่มจากการกดของผู้ใช้ เบราว์เซอร์ถึงยอม)
-    bgm.volume = 0.6;
+    // เริ่มเพลงที่ท่อนที่เลือก (ต้องเริ่มจากการกดของผู้ใช้ เบราว์เซอร์ถึงยอม)
+    try {
+      bgm.currentTime = Math.max(0, MUSIC_START - 0.3);
+    } catch (err) {}
+
+    bgm.volume = MUSIC_FADE > 0 ? 0 : 0.6;
     bgm.play().catch(() => {});
+
+    if (MUSIC_FADE > 0) {
+      const fadeStart = performance.now();
+      const fade = setInterval(() => {
+        const t = Math.min(1, (performance.now() - fadeStart) / MUSIC_FADE);
+        bgm.volume = 0.6 * t;
+        if (t >= 1) clearInterval(fade);
+      }, 50);
+    }
 
     setTimeout(() => {
       scatterGallery.classList.add("active");
@@ -396,42 +427,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (Math.abs(dx) > 50) showPhoto(lbIndex + (dx < 0 ? 1 : -1));
     touchX = null;
   }, { passive: true });
-});
 
-document.addEventListener("DOMContentLoaded", () => {
-  const bgMusic = document.getElementById("bgMusic") || document.getElementById("bgm");
-
-  const triggerAudio = () => {
-    if (bgMusic) {
-      bgMusic.volume = 0.5;
-      bgMusic.play().then(() => {
-        document.removeEventListener("click", triggerAudio);
-        document.removeEventListener("touchstart", triggerAudio);
-      }).catch(err => {
-        console.log("Blocked:", err);
-      });
-    }
-  };
-
-  document.addEventListener("click", triggerAudio);
-  document.addEventListener("touchstart", triggerAudio);
-
-    // =====================================================
+  // =====================================================
   //  🌸 ดอกไม้หลังปิดจดหมาย → กดแล้วดอกไม้ใบไม้กระจายเต็มเว็บ
   // =====================================================
   (function () {
-    // ✏️ แก้ข้อความซึ้งๆ ตรงนี้ (ขึ้นบรรทัดใหม่ด้วย \n)
-    const FLOWER_MESSAGE =
-      "ขอบคุณที่เป็นเธอ คนที่ทำให้วันธรรมดากลายเป็นวันพิเศษทุกวันเลยนะ\nดอกไม้ดอกนี้ให้เธอคนเดียวนะ";
-    const FLOWER_HINT = "แตะที่ดอกไม้";
-
-    const FLOWER_COUNT = 70; // จำนวนดอกไม้ที่กระจาย
-    const LEAF_COUNT = 50;   // จำนวนใบไม้ที่กระจาย
-
-    const letterEl = document.getElementById("letterOverlay");
-    if (!letterEl) return;
-
-    const r = (a, b) => a + Math.random() * (b - a);
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
     const FCOLORS = ["#f6e9e0", "#f9c4cc", "#f08aa0", "#e0405a", "#b32a45"];
@@ -487,11 +487,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       for (let i = 0; i < FLOWER_COUNT + LEAF_COUNT; i++) {
         const isFlower = i < FLOWER_COUNT;
-        const size = isFlower ? r(24, 64) : r(20, 46);
-        const x = r(0, 100);
-        const y = r(0, 100);
-        const rot = r(-180, 180);
-        const op = r(0.75, 1);
+        const size = isFlower ? rand(24, 64) : rand(20, 46);
+        const x = rand(0, 100);
+        const y = rand(0, 100);
+        const rot = rand(-180, 180);
+        const op = rand(0.75, 1);
 
         const el = document.createElement("div");
         el.className = "bloom-item" + (isFlower ? " is-flower" : "");
@@ -510,8 +510,8 @@ document.addEventListener("DOMContentLoaded", () => {
             Math.random() < 0.55 ? pick(FDARK) : null
           );
           const svg = el.firstChild;
-          svg.style.animationDuration = r(3.5, 6.5).toFixed(1) + "s";
-          svg.style.animationDelay = "-" + r(0, 4).toFixed(1) + "s";
+          svg.style.animationDuration = rand(3.5, 6.5).toFixed(1) + "s";
+          svg.style.animationDelay = "-" + rand(0, 4).toFixed(1) + "s";
         } else {
           el.innerHTML = leafSVG(pick(LCOLORS));
         }
@@ -528,8 +528,8 @@ document.addEventListener("DOMContentLoaded", () => {
             { transform: "translate(0,0) scale(1) rotate(" + rot + "deg)", opacity: op }
           ],
           {
-            duration: r(1400, 2400),
-            delay: r(0, 450),
+            duration: rand(1400, 2400),
+            delay: rand(0, 450),
             easing: "cubic-bezier(0.2, 0.8, 0.25, 1)",
             fill: "backwards"
           }
@@ -571,13 +571,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let wasOpen = false;
     let shown = false;
     new MutationObserver(() => {
-      const open = letterEl.classList.contains("open");
+      const open = letterOverlay.classList.contains("open");
       if (open) {
         wasOpen = true;
       } else if (wasOpen && !shown) {
         shown = true;
         setTimeout(showFlower, 650);
       }
-    }).observe(letterEl, { attributes: true, attributeFilter: ["class"] });
+    }).observe(letterOverlay, { attributes: true, attributeFilter: ["class"] });
   })();
 });

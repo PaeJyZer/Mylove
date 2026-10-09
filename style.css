@@ -98,7 +98,7 @@ body {
 .burst-layer {
   position: fixed;
   inset: 0;
-  z-index: 5;
+  z-index: 300; /* ลอยเหนือหน้าต่างจดหมาย/รูปใหญ่ด้วย */
   pointer-events: none;
   overflow: hidden;
 }
@@ -403,16 +403,11 @@ body {
     display: flex;
   }
 }
+
 /* =========================================
-   ส่วนเพิ่ม: จดหมาย / ดูรูปใหญ่ / เพลง
+   ปุ่มจดหมาย (อยู่ในเวที)
    ========================================= */
 
-/* ให้หัวใจที่แตะลอยอยู่เหนือหน้าต่างจดหมาย/รูปใหญ่ด้วย */
-.burst-layer {
-  z-index: 300;
-}
-
-/* ---------- ปุ่มจดหมาย (อยู่ในเวที) ---------- */
 .letter-btn {
   position: absolute;
   left: 1035px;
@@ -471,7 +466,10 @@ body {
   50%      { box-shadow: 0 0 22px 2px rgba(240, 138, 160, 0.35); }
 }
 
-/* ---------- ปุ่มเพลง ---------- */
+/* =========================================
+   ปุ่มเพลง
+   ========================================= */
+
 .music-btn {
   position: fixed;
   top: 34px;
@@ -518,7 +516,10 @@ body {
   transform: rotate(-45deg);
 }
 
-/* ---------- หน้าต่างซ้อน (ใช้ร่วมกัน) ---------- */
+/* =========================================
+   หน้าต่างซ้อน (ใช้ร่วมกัน)
+   ========================================= */
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -727,123 +728,7 @@ body {
     height: 40px;
   }
 }
-/* =========================================
-   ปุ่มควบคุมเสียงมินิมอล (Audio Controls)
-   ========================================= */
 
-.audio-controls {
-  position: fixed;
-  bottom: 15px;
-  right: 15px; /* ถ้าอยากให้อยู่ล่างซ้าย ให้เปลี่ยนเป็น left: 15px; */
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 6px 12px;
-  border-radius: 20px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
-}
-
-.audio-controls:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 117, 195, 0.4);
-}
-
-.audio-btn {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-  line-height: 1;
-}
-
-.volume-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 60px; /* ขนาดกะทัดรัด ไม่รกตา */
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.3);
-  outline: none;
-  cursor: pointer;
-}
-
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ff75c3;
-  box-shadow: 0 0 8px #ff0055;
-  cursor: pointer;
-}
-
-.volume-slider::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ff75c3;
-  box-shadow: 0 0 8px #ff0055;
-  cursor: pointer;
-  border: none;
-}
-.audio-controls-custom {
-  position: fixed;
-  bottom: 15px;
-  left: 15px; /* เปลี่ยนเป็น right: 15px ได้ถ้าอยากไว้มุมขวา */
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 5px 10px;
-  border-radius: 20px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.audio-controls-custom button {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 0.85rem;
-  cursor: pointer;
-  outline: none;
-}
-
-.audio-controls-custom input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 55px;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.3);
-  outline: none;
-  cursor: pointer;
-}
-
-.audio-controls-custom input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #f08aa0;
-  cursor: pointer;
-}
 /* =========================================
    ดอกไม้หลังปิดจดหมาย + ดอกไม้ใบไม้กระจายเต็มเว็บ
    ========================================= */
@@ -859,7 +744,6 @@ body {
 
 .bloom-item {
   position: absolute;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
 }
 
 .bloom-item svg {
@@ -977,4 +861,26 @@ body {
   font-size: 0.72rem;
   letter-spacing: 0.22em;
   color: var(--accent);
+}
+
+/* =========================================
+   ลดภาระเครื่อง (หน้าตาเหมือนเดิม)
+   ========================================= */
+
+/* ตอนมีหน้าต่างเบลอเปิดอยู่ หยุดอนิเมชันข้างหลังชั่วคราว */
+body:has(.overlay.open) .float-heart,
+body:has(.overlay.open) .float-heart svg,
+body:has(.overlay.open) .bloom-item svg,
+body:has(.flower-pop) .float-heart,
+body:has(.flower-pop) .float-heart svg {
+  animation-play-state: paused;
+}
+
+/* เครื่องอ่อน: ปิดเบลอหัวใจกับการแกว่งของดอกไม้ */
+.low-power .float-heart {
+  filter: none !important;
+}
+
+.low-power .bloom-item.is-flower svg {
+  animation: none;
 }
