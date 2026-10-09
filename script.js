@@ -33,10 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // เฟดเสียงเข้า (มิลลิวินาที) ใส่ 0 ถ้าอยากให้ดังทันที
   const MUSIC_FADE = 1200;
 
-  // ข้อความซึ้งๆ ในหน้าดอกไม้ (ขึ้นบรรทัดใหม่ด้วย \n)
+  // ข้อความซึ้งๆ ในหน้ากุหลาบ (ขึ้นบรรทัดใหม่ด้วย \n)
   const FLOWER_MESSAGE =
-    "เป๊ะเป็นคนพูดไม่เก่ง แสดงความรักไม่เก่ง แต่เป๊ะตั้งใจทำทุกอย่างเพื่อเธอนะ ใบตุ่น\nดอกไม้ดอกนี้ให้เธอคนเดียวนะ";
-  const FLOWER_HINT = "แตะที่ดอกไม้";
+    "ขอบคุณที่เป็นเธอ คนที่ทำให้วันธรรมดากลายเป็นวันพิเศษทุกวันเลยนะ\nกุหลาบดอกนี้ให้เธอคนเดียวนะ";
+  const FLOWER_HINT = "แตะที่กุหลาบ";
 
   // =====================================================
 
@@ -52,8 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const LOW_POWER = (navigator.hardwareConcurrency || 8) <= 4;
   if (LOW_POWER) document.body.classList.add("low-power");
 
-  const FLOWER_COUNT = LOW_POWER ? 45 : 70; // จำนวนดอกไม้ที่กระจาย
-  const LEAF_COUNT = LOW_POWER ? 32 : 50;   // จำนวนใบไม้ที่กระจาย
+  // ตอนกุหลาบแตก: FLOWER_COUNT = จำนวนกลีบ, LEAF_COUNT = จำนวนหัวใจ
+  const FLOWER_COUNT = LOW_POWER ? 45 : 70;
+  const LEAF_COUNT = LOW_POWER ? 32 : 50;
 
   // ---------- ย่อ/ขยายเวทีให้พอดีจอ ทำให้ iPad เห็นเหมือนบนคอม ----------
   const STAGE_W = 1600;
@@ -429,47 +430,47 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { passive: true });
 
   // =====================================================
-  //  🌸 ดอกไม้หลังปิดจดหมาย → กดแล้วดอกไม้ใบไม้กระจายเต็มเว็บ
+  //  🌹 กุหลาบหลังปิดจดหมาย → กดแล้วกลีบกุหลาบกับหัวใจกระจายเต็มเว็บ
   // =====================================================
   (function () {
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-    const FCOLORS = ["#f6e9e0", "#f9c4cc", "#f08aa0", "#e0405a", "#b32a45"];
-    const FDARK = ["#f08aa0", "#e0405a", "#b32a45", "#f9c4cc"];
-    const LCOLORS = ["#6f9a6a", "#4f7d57", "#8fae7c", "#3f6b4b"];
+    const PETAL_COLORS = ["#9e1f3a", "#b32a45", "#c92f4e", "#e0405a", "#f08aa0"];
+    const HEART_COLORS = ["#f6e9e0", "#f9c4cc", "#f08aa0", "#e0405a", "#b32a45"];
 
-    function petals(color, n, offset) {
-      let s = "";
-      for (let i = 0; i < n; i++) {
-        s +=
-          '<ellipse cx="50" cy="26" rx="13" ry="23" fill="' + color +
-          '" stroke="rgba(36,9,16,0.18)" stroke-width="1" transform="rotate(' +
-          (offset + (360 / n) * i) + ' 50 50)"/>';
+    // ดอกกุหลาบ (มองจากด้านบน ซ้อนกลีบเป็นชั้นๆ)
+    function roseSVG() {
+      const edge = 'stroke="rgba(36,9,16,0.35)" stroke-width="1.2"';
+      let s = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
+      for (let i = 0; i < 6; i++) {
+        s += '<ellipse cx="50" cy="22" rx="17" ry="21" fill="#9e1f3a" ' + edge +
+          ' transform="rotate(' + 60 * i + ' 50 50)"/>';
       }
-      return s;
+      for (let i = 0; i < 5; i++) {
+        s += '<ellipse cx="50" cy="31" rx="13" ry="17" fill="#c92f4e" ' + edge +
+          ' transform="rotate(' + (72 * i + 20) + ' 50 50)"/>';
+      }
+      for (let i = 0; i < 4; i++) {
+        s += '<ellipse cx="50" cy="39" rx="10" ry="13" fill="#e0405a" ' + edge +
+          ' transform="rotate(' + (90 * i + 10) + ' 50 50)"/>';
+      }
+      s += '<circle cx="50" cy="50" r="12" fill="#f08aa0" ' + edge + '/>';
+      s += '<path d="M50 50 a2.5 2.5 0 1 1 2.5 2.5 a5 5 0 1 1 -5 -5 a7.5 7.5 0 1 1 7.5 7.5" ' +
+        'fill="none" stroke="rgba(36,9,16,0.45)" stroke-width="1.4" stroke-linecap="round"/>';
+      return s + "</svg>";
     }
 
-    function flowerSVG(color, n, backColor) {
-      let inner = "";
-      if (backColor) inner += petals(backColor, n, 180 / n);
-      inner += petals(color, n, 0);
-      return (
-        '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">' +
-        inner +
-        '<circle cx="50" cy="50" r="11" fill="#f3c969"/>' +
-        '<circle cx="50" cy="50" r="5" fill="#d99a3a"/></svg>'
-      );
-    }
-
-    function leafSVG(color) {
+    // กลีบกุหลาบ 1 กลีบ
+    function petalSVG(color) {
       return (
         '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
-        '<path d="M12 2C5 6 3 14 6 22c8-1 15-7 15-15 0-2-4-4-9-5z" fill="' + color + '"/>' +
-        '<path d="M6 22C9 15 13 10 18 6" stroke="rgba(246,233,224,0.45)" stroke-width="1" fill="none"/></svg>'
+        '<path d="M12 2.5C17.5 5 21 11.5 12 21.5C3 11.5 6.5 5 12 2.5z" fill="' + color + '"/>' +
+        '<path d="M12 5.5C14 9 14 13 12 17.5" stroke="rgba(246,233,224,0.35)" ' +
+        'stroke-width="1" fill="none" stroke-linecap="round"/></svg>'
       );
     }
 
-    // ---------- ดอกไม้ใบไม้กระจายเต็มเว็บ (อยู่ถาวร) ----------
+    // ---------- กลีบกุหลาบ + หัวใจกระจายเต็มเว็บ (อยู่ถาวร) ----------
     let layer = null;
     function getLayer() {
       if (!layer) {
@@ -486,15 +487,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const H = window.innerHeight;
 
       for (let i = 0; i < FLOWER_COUNT + LEAF_COUNT; i++) {
-        const isFlower = i < FLOWER_COUNT;
-        const size = isFlower ? rand(24, 64) : rand(20, 46);
+        const isPetal = i < FLOWER_COUNT;
+        const size = isPetal ? rand(26, 58) : rand(16, 38);
         const x = rand(0, 100);
         const y = rand(0, 100);
         const rot = rand(-180, 180);
         const op = rand(0.75, 1);
 
         const el = document.createElement("div");
-        el.className = "bloom-item" + (isFlower ? " is-flower" : "");
+        el.className = "bloom-item" + (isPetal ? " is-flower" : "");
         el.style.left = x + "%";
         el.style.top = y + "%";
         el.style.width = size + "px";
@@ -503,17 +504,13 @@ document.addEventListener("DOMContentLoaded", () => {
         el.style.opacity = op.toFixed(2);
         el.style.transform = "rotate(" + rot.toFixed(1) + "deg)";
 
-        if (isFlower) {
-          el.innerHTML = flowerSVG(
-            pick(FCOLORS),
-            pick([5, 6, 8]),
-            Math.random() < 0.55 ? pick(FDARK) : null
-          );
+        if (isPetal) {
+          el.innerHTML = petalSVG(pick(PETAL_COLORS));
           const svg = el.firstChild;
           svg.style.animationDuration = rand(3.5, 6.5).toFixed(1) + "s";
           svg.style.animationDelay = "-" + rand(0, 4).toFixed(1) + "s";
         } else {
-          el.innerHTML = leafSVG(pick(LCOLORS));
+          el.innerHTML = heartSVG(pick(HEART_COLORS), Math.random() < 0.3);
         }
 
         lay.appendChild(el);
@@ -537,13 +534,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // ---------- ดอกไม้เด้งขึ้นมาพร้อมข้อความ ----------
+    // ---------- กุหลาบเด้งขึ้นมาพร้อมข้อความ ----------
     function showFlower() {
       const pop = document.createElement("div");
       pop.className = "flower-pop";
       pop.innerHTML =
-        '<div class="fp-flower" role="button" aria-label="ดอกไม้">' +
-        flowerSVG("#f9c4cc", 8, "#f08aa0") +
+        '<div class="fp-flower" role="button" aria-label="กุหลาบ">' +
+        roseSVG() +
         '</div><div class="fp-card"><p class="fp-msg"></p><p class="fp-hint"></p></div>';
       pop.querySelector(".fp-msg").textContent = FLOWER_MESSAGE;
       pop.querySelector(".fp-hint").textContent = FLOWER_HINT;
