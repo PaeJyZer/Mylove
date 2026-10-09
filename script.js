@@ -106,8 +106,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       el.style.width = newW.toFixed(1) + "px";
       el.style.height = newH.toFixed(1) + "px";
-      el.style.left = (cx - newW / 2).toFixed(1) + "px";
-      el.style.top = (cy - newH / 2).toFixed(1) + "px";
+      // ปิดการขยับตำแหน่ง left/top เพื่ออิงพิกัดจาก CSS
+      // el.style.left = (cx - newW / 2).toFixed(1) + "px";
+      // el.style.top = (cy - newH / 2).toFixed(1) + "px";
     }
 
     if (img.complete && img.naturalWidth) {
