@@ -26,12 +26,16 @@ document.addEventListener("DOMContentLoaded", () => {
     "Our Best Memory"
   ];
 
-  const TYPE_SPEED = 150; // ความเร็วพิมพ์จดหมาย (มิลลิวินาที/ตัวอักษร) ยิ่งน้อยยิ่งเร็ว
+  const TYPE_SPEED = 120; // ความเร็วพิมพ์จดหมาย (มิลลิวินาที/ตัวอักษร) ยิ่งน้อยยิ่งเร็ว
 
   // วินาทีของเพลงที่อยากให้เริ่มตอนกด (0 = เริ่มต้นเพลง, 45 = เริ่มที่ 0:45)
   const MUSIC_START = 0;
   // เฟดเสียงเข้า (มิลลิวินาที) ใส่ 0 ถ้าอยากให้ดังทันที
   const MUSIC_FADE = 1200;
+
+  // ช่วงห่างระหว่างรูปแต่ละใบตอนเด้งขึ้นมา (มิลลิวินาที) ยิ่งเยอะยิ่งช้า
+  // 250 = เร็วขึ้น, 350 = ใบละ 0.35 วิ, 500 = ช้าลง
+  const POP_GAP = 350;
 
   // ข้อความซึ้งๆ ในหน้ากุหลาบ (ขึ้นบรรทัดใหม่ด้วย \n)
   const FLOWER_MESSAGE =
@@ -232,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ---------- กดเปิดแกลเลอรี ----------
   items.forEach((el, i) => {
-    el.style.transitionDelay = i * 45 + "ms";
+    el.style.transitionDelay = i * POP_GAP + "ms";
   });
 
   mainPhotoBtn.addEventListener("click", () => {
@@ -259,26 +263,29 @@ document.addEventListener("DOMContentLoaded", () => {
       scatterGallery.classList.add("active");
     }, 300);
 
-    // ฝนหัวใจตอนรูปกระจาย
+    // ฝนหัวใจตอนรูปกระจาย (ยืดไปตามจำนวนรูปและความช้าของการเด้ง)
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    for (let i = 0; i < 7; i++) {
+    const bursts = Math.round((items.length * POP_GAP) / 600);
+    for (let i = 0; i < bursts; i++) {
       setTimeout(() => {
         burstAt(rand(vw * 0.15, vw * 0.85), rand(vh * 0.2, vh * 0.8), 10);
-      }, 350 + i * 220);
+      }, 350 + i * 600);
     }
 
-    // เคลียร์ดีเลย์หลังรูปขึ้นครบ เพื่อให้ตอนแตะ/เอาเมาส์ชี้ตอบสนองทันที
+    // รอให้รูปขึ้นครบทุกใบก่อน ค่อยเคลียร์ดีเลย์และโชว์ปุ่มจดหมาย
+    const allShownAt = 300 + items.length * POP_GAP + 1300;
+
     setTimeout(() => {
       items.forEach((el) => {
         el.style.transitionDelay = "0ms";
       });
-    }, 2200);
+    }, allShownAt);
 
     // ปุ่มจดหมายค่อยๆ โผล่
     setTimeout(() => {
       letterBtn.classList.add("show");
-    }, 2400);
+    }, allShownAt + 200);
   });
 
   // ---------- หน้าต่างซ้อน: ปิดด้วยปุ่ม X / กดพื้นหลัง / Esc ----------
