@@ -30,8 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // วินาทีของเพลงที่อยากให้เริ่มตอนกด (0 = เริ่มต้นเพลง, 45 = เริ่มที่ 0:45)
   const MUSIC_START = 0;
-  // เฟดเสียงเข้า (มิลลิวินาที) ใส่ 0 ถ้าอยากให้ดังทันที
-  const MUSIC_FADE = 1200;
 
   // ช่วงห่างระหว่างรูปแต่ละใบตอนเด้งขึ้นมา (มิลลิวินาที) ยิ่งเยอะยิ่งช้า
   // 250 = เร็วขึ้น, 350 = ใบละ 0.35 วิ, 500 = ช้าลง
@@ -90,8 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const w0 = el.offsetWidth;
     const h0 = el.offsetHeight;
-    const cx = el.offsetLeft + w0 / 2;
-    const cy = el.offsetTop + h0 / 2;
     const imgArea = (w0 - padX) * (h0 - padY);
 
     function fitFrame() {
@@ -106,9 +102,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       el.style.width = newW.toFixed(1) + "px";
       el.style.height = newH.toFixed(1) + "px";
-      // ปิดการขยับตำแหน่ง left/top เพื่ออิงพิกัดจาก CSS
-      // el.style.left = (cx - newW / 2).toFixed(1) + "px";
-      // el.style.top = (cy - newH / 2).toFixed(1) + "px";
     }
 
     if (img.complete && img.naturalWidth) {
@@ -243,28 +236,20 @@ document.addEventListener("DOMContentLoaded", () => {
   mainPhotoBtn.addEventListener("click", () => {
     mainPhotoBtn.classList.add("hide-out");
 
-    // เริ่มเพลงที่ท่อนที่เลือก (ต้องเริ่มจากการกดของผู้ใช้ เบราว์เซอร์ถึงยอม)
-    try {
-      bgm.currentTime = Math.max(0, MUSIC_START - 0.3);
-    } catch (err) {}
-
-    bgm.volume = MUSIC_FADE > 0 ? 0 : 0.6;
-    bgm.play().catch(() => {});
-
-    if (MUSIC_FADE > 0) {
-      const fadeStart = performance.now();
-      const fade = setInterval(() => {
-        const t = Math.min(1, (performance.now() - fadeStart) / MUSIC_FADE);
-        bgm.volume = 0.6 * t;
-        if (t >= 1) clearInterval(fade);
-      }, 50);
-    }
+    // แก้ปัญหาบน iPad: สั่ง play() ทันทีภายใต้ User Interaction โดยไม่ปรับตั้งค่าล่วงหน้า
+    bgm.play().then(() => {
+      if (MUSIC_START > 0) {
+        bgm.currentTime = MUSIC_START;
+      }
+    }).catch((err) => {
+      console.log("Autoplay prevented:", err);
+    });
 
     setTimeout(() => {
       scatterGallery.classList.add("active");
     }, 300);
 
-    // ฝนหัวใจตอนรูปกระจาย (ยืดไปตามจำนวนรูปและความช้าของการเด้ง)
+    // ฝนหัวใจตอนรูปกระจาย
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const bursts = Math.round((items.length * POP_GAP) / 600);
@@ -274,7 +259,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 350 + i * 600);
     }
 
-    // รอให้รูปขึ้นครบทุกใบก่อน ค่อยเคลียร์ดีเลย์และโชว์ปุ่มจดหมาย
     const allShownAt = 300 + items.length * POP_GAP + 1300;
 
     setTimeout(() => {
@@ -283,7 +267,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }, allShownAt);
 
-    // ปุ่มจดหมายค่อยๆ โผล่
     setTimeout(() => {
       letterBtn.classList.add("show");
     }, allShownAt + 200);
@@ -349,7 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
     letterRest.textContent = LETTER_TEXT;
 
     let n = 0;
-    // รอให้การ์ดเลื่อนขึ้นมาก่อนแล้วค่อยเริ่มพิมพ์
     typeTimer = setTimeout(function tick() {
       n += 1;
       letterTyped.textContent = LETTER_TEXT.slice(0, n);
@@ -370,7 +352,6 @@ document.addEventListener("DOMContentLoaded", () => {
     counterTimer = null;
   }
 
-  // แตะที่การ์ดระหว่างพิมพ์ = ข้ามไปแสดงข้อความทั้งหมดเลย
   letterOverlay.querySelector(".letter-card").addEventListener("click", () => {
     if (typeTimer) {
       clearTimeout(typeTimer);
@@ -414,7 +395,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("lbPrev").addEventListener("click", () => showPhoto(lbIndex - 1));
   document.getElementById("lbNext").addEventListener("click", () => showPhoto(lbIndex + 1));
 
-  // คีย์บอร์ด: Esc ปิด, ลูกศรซ้ายขวาเลื่อนรูป
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       document.querySelectorAll(".overlay.open").forEach(closeOverlay);
@@ -425,7 +405,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ปัดนิ้วซ้าย-ขวาบน iPad เพื่อเลื่อนรูป
   let touchX = null;
   lightbox.addEventListener("touchstart", (e) => {
     touchX = e.changedTouches[0].clientX;
@@ -438,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }, { passive: true });
 
   // =====================================================
-  //  🌹 กุหลาบหลังปิดจดหมาย → กดแล้วกลีบกุหลาบกับหัวใจกระจายเต็มเว็บ
+  //  🌹 กุหลาบหลังปิดจดหมาย
   // =====================================================
   (function () {
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -446,7 +425,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const PETAL_COLORS = ["#9e1f3a", "#b32a45", "#c92f4e", "#e0405a", "#f08aa0"];
     const HEART_COLORS = ["#f6e9e0", "#f9c4cc", "#f08aa0", "#e0405a", "#b32a45"];
 
-    // ดอกกุหลาบ (มองจากด้านบน ซ้อนกลีบเป็นชั้นๆ)
     function roseSVG() {
       const edge = 'stroke="rgba(36,9,16,0.35)" stroke-width="1.2"';
       let s = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">';
@@ -468,7 +446,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return s + "</svg>";
     }
 
-    // กลีบกุหลาบ 1 กลีบ
     function petalSVG(color) {
       return (
         '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
@@ -478,7 +455,6 @@ document.addEventListener("DOMContentLoaded", () => {
       );
     }
 
-    // ---------- กลีบกุหลาบ + หัวใจกระจายเต็มเว็บ (อยู่ถาวร) ----------
     let layer = null;
     function getLayer() {
       if (!layer) {
@@ -542,7 +518,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // ---------- กุหลาบเด้งขึ้นมาพร้อมข้อความ ----------
     function showFlower() {
       const pop = document.createElement("div");
       pop.className = "flower-pop";
@@ -572,7 +547,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // ---------- จับจังหวะตอนปิดจดหมาย (ครั้งแรกครั้งเดียว) ----------
     let wasOpen = false;
     let shown = false;
     new MutationObserver(() => {
